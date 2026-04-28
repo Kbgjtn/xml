@@ -124,7 +124,6 @@ const State = enum {
     state_hex_reference,
     state_decimal_reference,
     state_entity_reference,
-
     state_parameter_entity_reference,
 
     state_tag_open,
