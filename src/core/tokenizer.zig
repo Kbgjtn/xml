@@ -11,6 +11,14 @@ pub const Token = struct {
         .start = 0,
     };
 
+    pub fn init(start: u32, len: u16) Token {
+        return .{
+            .tag = .character,
+            .len = len,
+            .start = start,
+        };
+    }
+
     pub const PredefinedGeneralEntities: std.StaticStringMap(void) =
         .initComptime(&.{
             .{"amp"},
@@ -28,6 +36,7 @@ pub const Token = struct {
         end_tag,
         comment,
         cdata,
+        element_declaration,
         pi,
         doctype,
         xml_declaration,
