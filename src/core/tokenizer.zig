@@ -37,6 +37,7 @@ pub const Token = struct {
         comment,
         cdata,
         element_declaration,
+        attribute_list_declaration,
         pi,
         doctype,
         xml_declaration,
