@@ -136,13 +136,6 @@ pub const Attribute = struct {
     pub fn print(self: *const Attribute, source: []const u8) void {
         std.debug.print("Attribute {s} = \"{s}\"\n", .{ self.name(source), self.value(source) });
     }
-
-    // pub fn format(self: *const Attribute, source: []const u8, writer: *std.Io.Writer) std.Io.Writer.Error!void {
-    //     try writer.print("{s} = \"{s}\"", .{
-    //         source[self.name_start .. self.name_start + self.name_len],
-    //         source[self.value_start .. self.value_start + self.value_len],
-    //     });
-    // }
 };
 
 const State = enum {
