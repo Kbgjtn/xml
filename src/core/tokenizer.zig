@@ -204,6 +204,29 @@ const State = enum {
     state_element_type_declaration_content_spec_literal,
     state_element_type_declaration_content_spec_grouped,
     state_element_type_declaration_content_spec_grouped_quantifier,
+
+    // ATTLIST
+    state_attribute_list_declaration_start,
+    state_before_attribute_declaration_name,
+    state_attribute_list_declaration_name,
+    state_after_attribute_list_declaration_name,
+
+    // ATTDEF_NAME
+    state_before_attribute_definition_name,
+    state_attribute_definition_name,
+    state_after_attribute_definition_name,
+
+    // ATTDEF_TYPE
+    state_before_attribute_definition_value_type,
+    state_attribute_definition_value_type_reserved,
+    state_attribute_definition_value_type_enumerated,
+    state_after_attribute_definition_value_type,
+
+    // ATTDEF_DECLARATIOIN
+    state_before_attribute_definition_default_decl,
+    state_attribute_definition_default_decl,
+    state_attribute_definition_default_value_fixed,
+    state_after_attribute_definition_default_decl,
 };
 
 // TODO
@@ -2484,9 +2507,9 @@ pub const Tokenizer = struct {
         return token;
     }
 
-    pub fn process_instruction(self: *Tokenizer) ?[]const u8 {
-        if (self.span) |v| {
-            return self.buffer[v.start .. v.start + v.len];
+    fn pushAttribute(self: *Tokenizer, attr: Attribute) void {
+        if (self.attribute_elements_count == self.attribute_elements.len) {
+            @panic("BufferOverflow");
         }
 
         return null;
