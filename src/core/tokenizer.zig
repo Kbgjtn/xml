@@ -272,30 +272,32 @@ pub const Tokenizer = struct {
     /// Returns a view of the attributes of the current token.
     /// The returned slice becomes invalid after the next `next()` call.
     pub fn attributes(self: *Tokenizer) []const Attribute {
-        return self.kv_inline[0..self.kv_count];
+        return self.attribute_elements[0..self.attribute_elements_count];
     }
 
-    fn pushAttribute(self: *Tokenizer, attr: Attribute) void {
-        if (self.kv_count == self.kv_inline.len) {
-            @panic("BufferOverflow");
-        }
-
-        for (self.kv_inline) |v| {
-            if (std.mem.eql(
-                u8,
-                self.buffer[v.name_start .. v.name_start + v.name_len],
-                self.buffer[attr.name_start .. attr.name_start + attr.name_len],
-            )) {
-                return;
-            }
-        }
-
-        self.kv_inline[self.kv_count] = attr;
-        self.kv_count += 1;
-    }
-
-    pub fn DoctypeIdentifier(self: *const Tokenizer) ?Identifier {
+    pub fn doctypeIdentifier(self: *const Tokenizer) ?Identifier {
         return self.identifier;
+    }
+
+    pub fn processInstruction(self: *Tokenizer) ?[]const u8 {
+        if (self.span) |v| {
+            return self.buffer[v.start .. v.start + v.len];
+        }
+        return null;
+    }
+
+    pub fn contentSpec(self: *Tokenizer) ?[]const u8 {
+        if (self.span) |span| {
+            return self.buffer[span.start .. span.start + span.len];
+        }
+        return null;
+    }
+
+    pub fn attributeDefinitions(self: *Tokenizer) []const AttributeDef {
+        if (self.attribute_defs_count > 0) {
+            return self.attribute_defs[0..self.attribute_defs_count];
+        }
+        return &.{};
     }
 
     pub fn next(self: *Tokenizer) Token {
