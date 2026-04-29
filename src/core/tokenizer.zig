@@ -92,7 +92,7 @@ const Identifier = struct {
     }
 
     pub fn publicId(self: *const Identifier, src: []const u8) ?[]const u8 {
-        if (self.public_len == null and self.public_start == null) {
+        if (self.public_start == null or self.public_len == null) {
             return null;
         }
 
