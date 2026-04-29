@@ -241,8 +241,11 @@ pub const Tokenizer = struct {
 
     /// Tokenizer owns, caller borrowed a view of the key value spans
     /// will resets when the `next()` is called.
-    kv_inline: [16]Attribute,
-    kv_count: usize,
+    attribute_elements: [16]Attribute,
+    attribute_elements_count: usize,
+
+    attribute_defs: [16]AttributeDef,
+    attribute_defs_count: usize,
 
     span: ?Span,
     identifier: ?Identifier,
@@ -250,12 +253,14 @@ pub const Tokenizer = struct {
     pub fn init(buffer: [:0]const u8) Tokenizer {
         return .{
             .index = 0,
-            .kv_count = 0,
-            .buffer = buffer,
-            .state = .state_data,
             .span = null,
+            .buffer = buffer,
             .identifier = null,
-            .kv_inline = [_]Attribute{Attribute.empty} ** 16,
+            .state = .state_data,
+            .attribute_defs_count = 0,
+            .attribute_elements_count = 0,
+            .attribute_elements = [_]Attribute{Attribute.empty} ** 16,
+            .attribute_defs = [_]AttributeDef{AttributeDef.empty} ** 16,
         };
     }
 
