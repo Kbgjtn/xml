@@ -2344,8 +2344,6 @@ pub const Tokenizer = struct {
                             continue :s .state_element_type_declaration_name;
                         }
 
-                        // TODO
-                        // handle PEReference
                         @panic("not handled yet!");
                     },
                 }
