@@ -82,6 +82,22 @@ const Identifier = struct {
         .internal_subset_len = 0,
         .internal_subset_start = 0,
     };
+
+    pub fn internalSubset(self: *const Identifier, src: []const u8) []const u8 {
+        return src[self.internal_subset_start .. self.internal_subset_start + self.internal_subset_len];
+    }
+
+    pub fn systemId(self: *const Identifier, src: []const u8) []const u8 {
+        return src[self.system_start .. self.system_start + self.system_len];
+    }
+
+    pub fn publicId(self: *const Identifier, src: []const u8) ?[]const u8 {
+        if (self.public_len == null and self.public_start == null) {
+            return null;
+        }
+
+        return src[self.public_start.? .. self.public_start.? + self.public_len.?];
+    }
 };
 
 pub const Attribute = struct {
