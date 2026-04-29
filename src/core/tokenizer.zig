@@ -45,6 +45,17 @@ pub const Token = struct {
         unknown,
     };
 
+    pub fn value(self: *const Token, src: []const u8) []const u8 {
+        return src[self.start .. self.start + self.len];
+    }
+
+    pub fn isWhiteSpace(self: *const Token, src: []const u8) bool {
+        if (self.len == 0) return false;
+        const content = src[self.start .. self.start + self.len];
+        for (content) |c| if (!std.ascii.isWhitespace(c)) return false;
+        return true;
+    }
+
     pub fn format(token: *const Token, writer: *std.Io.Writer) std.Io.Writer.Error!void {
         try writer.print("{t} | {};{}", .{
             token.tag,
