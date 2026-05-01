@@ -651,19 +651,17 @@ pub const Tokenizer = struct {
                     continue :s .state_data;
                 }
 
-                const c = self.buffer[self.index];
                 // std.debug.print("{s} | ", .{"state_before_attribute_name"});
                 // self.debugByte();
-
+                const c = self.buffer[self.index];
                 switch (c) {
-                    ' ', '\t', '\r', '\n' => { // Ignore the character.
+                    ' ', '\t', '\r', '\n' => {
                         self.index += 1;
                         continue :s .state_before_attribute_name;
                     },
 
                     '?' => {
                         self.index += 1;
-                        // self.state = .state_self_closing_start_tag;
                         continue :s self.state;
                     },
 
@@ -683,12 +681,18 @@ pub const Tokenizer = struct {
                             @panic("illegal attribute name characters!");
                         }
 
-                attribute.name_start = self.index;
-                attribute.name_len += 1;
+                        // TODO Anything else
+                        // Start a new attribute in the current tag token. Set that
+                        // attribute's name to the current input character, and its
+                        // value to the empty string. Switch to the attribute name state.
+                        attribute.name_start = self.index;
+                        attribute.name_len += 1;
 
-                self.index += 1;
-                // self.state = .state_attribute_name;
-                continue :s .state_attribute_name;
+                        self.index += 1;
+                        // self.state = .state_attribute_name;
+                        continue :s .state_attribute_name;
+                    },
+                }
             },
 
             .state_attribute_name => {
