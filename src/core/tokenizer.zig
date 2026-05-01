@@ -612,28 +612,11 @@ pub const Tokenizer = struct {
             },
 
             .state_end_tag_open => {
-                // TODO
-                // EOF - Parse error. Emit a U+003C LESS-THAN SIGN character token and
-                // a U+002F SOLIDUS character token. Reconsume the EOF character
-                // in the data state.
-
                 const c = self.buffer[self.index];
-                token.tag = .end_tag;
-                token.start = self.index;
-
-                if (isNameStartChar(c)) {
-                    token.len += 1;
-                    self.index += 1;
-                    self.state = .state_tag_name;
-                    continue :s .state_tag_name;
-                }
-
                 switch (c) {
                     '>' => {
-                        // parse error "</>"
-                        // NOTE: for now just gets ignore by.
-                        self.state = .state_data;
                         self.index += 1;
+                        self.state = .state_data;
                         continue :s .state_data;
                     },
                     else => {
@@ -647,10 +630,9 @@ pub const Tokenizer = struct {
 
                         // TODO
                         // Parse error. Switch to the bogus comment state.
+                        @panic("not implemented");
                     },
                 }
-
-                @panic("not implemented");
             },
 
             .state_before_attribute_name => {
