@@ -2939,6 +2939,34 @@ test "markup declarations" {
         \\                        latitude,
         \\                        case*)>
     , &[_]Token.Tag{.element_declaration});
+
+    // ATTLIST
+    try testTokenizer("<!ATTLIST img >", &[_]Token.Tag{.attribute_list_declaration});
+
+    // [CDATA attribute with default]
+    try testTokenizer("<!ATTLIST square width CDATA \"0\">", &[_]Token.Tag{.attribute_list_declaration});
+
+    // [#REQUIRED attribute]
+    try testTokenizer("<!ATTLIST person number CDATA #REQUIRED>", &[_]Token.Tag{.attribute_list_declaration});
+
+    // [#IMPLIED attribute]
+    try testTokenizer("<!ATTLIST contact fax CDATA #IMPLIED>", &[_]Token.Tag{.attribute_list_declaration});
+
+    // [#FIXED attribute]
+    try testTokenizer("<!ATTLIST sender company CDATA #FIXED \"Zig Foundation\">", &[_]Token.Tag{.attribute_list_declaration});
+
+    // /[Enumerated values]
+    // <!ATTLIST payment type (check|cash) "cash">
+    try testTokenizer("<!ATTLIST payment type (check|cash) \"cash\">", &[_]Token.Tag{.attribute_list_declaration});
+
+    try testTokenizer(
+        \\<!ATTLIST img
+        \\          src    CDATA      #REQUIRED
+        \\          id     ID         #IMPLIED
+        \\          sort   CDATA      #FIXED "true"
+        \\          print  (yes | no) "yes"
+        \\>
+    , &[_]Token.Tag{.attribute_list_declaration});
 }
 
 test "element" {
