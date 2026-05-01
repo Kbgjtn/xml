@@ -637,6 +637,14 @@ pub const Tokenizer = struct {
                         continue :s .state_data;
                     },
                     else => {
+                        if (isNameStartChar(c)) {
+                            token = .init(.end_tag, self.index, 1);
+
+                            self.index += 1;
+                            self.state = .state_tag_name;
+                            continue :s .state_tag_name;
+                        }
+
                         // TODO
                         // Parse error. Switch to the bogus comment state.
                     },
