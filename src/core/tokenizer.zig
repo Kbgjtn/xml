@@ -678,18 +678,10 @@ pub const Tokenizer = struct {
                         break :s;
                     },
 
-                    else => {},
-                }
-
-                // std.debug.print("isNameChar({x}): {}\n", .{ c, isNameChar(c) });
-                if (!isNameChar(c)) {
-                    @panic("illegal attribute name characters!");
-                }
-
-                // TODO Anything else
-                // Start a new attribute in the current tag token. Set that
-                // attribute's name to the current input character, and its
-                // value to the empty string. Switch to the attribute name state.
+                    else => {
+                        if (!isNameStartChar(c)) {
+                            @panic("illegal attribute name characters!");
+                        }
 
                 attribute.name_start = self.index;
                 attribute.name_len += 1;
