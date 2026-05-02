@@ -356,47 +356,14 @@ pub const Tokenizer = struct {
         };
     }
 
-    /// Returns a view of the attributes of the current token.
-    /// The returned slice becomes invalid after the next `next()` call.
-    pub fn attributes(self: *Tokenizer) []const Attribute {
-        return self.attribute_elements[0..self.attribute_elements_count];
-    }
-
-    pub fn doctypeIdentifier(self: *const Tokenizer) ?Identifier {
-        return self.identifier;
-    }
-
-    pub fn processInstruction(self: *Tokenizer) ?[]const u8 {
-        if (self.span) |v| {
-            return self.buffer[v.start .. v.start + v.len];
-        }
-        return null;
-    }
-
-    pub fn contentSpec(self: *Tokenizer) ?[]const u8 {
-        if (self.span) |span| {
-            return self.buffer[span.start .. span.start + span.len];
-        }
-        return null;
-    }
-
-    pub fn attributeDefinitions(self: *Tokenizer) []const AttributeDef {
-        if (self.attribute_defs_count > 0) {
-            return self.attribute_defs[0..self.attribute_defs_count];
-        }
-        return &.{};
-    }
-
     pub fn next(self: *Tokenizer) Token {
-        self.span = null;
-        self.identifier = null;
-        self.kv_count = 0;
+        self.reset_internal_properties();
 
         const start_pos = self.index;
-        var token: Token = .init(self.index, 0);
-        var attribute: Attribute = .empty;
-
-        var mode: enum { read, internal_subset } = .read;
+        var token: Token = .init(.character, self.index, 0);
+        var attribute: Attribute = .default;
+        var attribute_def: AttributeDef = .default;
+        var mode: enum { read, internal_subset, span } = .read;
 
         defer {
             if (token.tag == .doctype) {
@@ -2850,23 +2817,6 @@ pub const Tokenizer = struct {
             '<', '&' => return false,
             else => return true,
         };
-    }
-
-    pub fn dump(self: *Tokenizer, token: *const Token) void {
-        std.debug.print("{f} | [0x{x}] \"{s}\" | attrs_len={}\n", .{
-            token,
-            self.buffer[token.start .. token.start + token.len],
-            self.buffer[token.start .. token.start + token.len],
-            self.kv_count,
-        });
-    }
-
-    pub fn debugByte(self: *Tokenizer) void {
-        std.debug.print("'{c}' [0x{X}] | {t}\n", .{
-            self.buffer[self.index],
-            self.buffer[self.index],
-            self.state,
-        });
     }
 };
 
