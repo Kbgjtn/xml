@@ -2156,16 +2156,19 @@ pub const Tokenizer = struct {
             },
 
             .state_pi_target => {
-                token.start = self.index;
-                if (self.index == self.buffer.len) {
+                if (self.index >= self.buffer.len) {
                     @panic("UnexpectedEOF");
                 }
 
+                // PITarget must be a Name and not (xml | XML) reserved for A
+                // standardization in this or future version on xml spec.
                 if (!isNameStartChar(self.buffer[self.index])) {
                     @panic("invalid PI Target");
                 }
 
-                token.len += 1;
+                // assume it's pi token
+                token = .init(.pi, self.index, 1);
+                // consume "NameStartChar"
                 self.index += 1;
 
                 while (self.index < self.buffer.len and isNameChar(self.buffer[self.index])) {
@@ -2173,17 +2176,16 @@ pub const Tokenizer = struct {
                     self.index += 1;
                 }
 
-                const target = self.buffer[token.start..self.index];
+                const name = self.buffer[token.start..self.index];
 
-                // check for case insensiteve 'xml'
-                if (std.ascii.eqlIgnoreCase(target, "xml")) {
-                    // must be XMLDecl or TextDecl depending on context
-                    token.tag = .xml_declaration;
+                // check for name eq to 'xml' (case insensiteve)
+                // then must be XMLDecl or TextDecl depending on context
+                if (std.ascii.eqlIgnoreCase(name, "xml")) {
+                    token = .init(.xml_declaration, token.start, token.len);
                     self.state = .state_xml_declaration;
                     continue :s .state_xml_declaration;
                 }
 
-                token.tag = .pi;
                 self.span = .empty;
                 self.span.?.start = self.index;
                 continue :s .state_before_pi_data;
