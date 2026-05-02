@@ -293,22 +293,19 @@ const State = enum {
     state_element_type_declaration_content_spec_grouped_quantifier,
 
     // ATTLIST
-    state_attribute_list_declaration_start,
-    state_before_attribute_declaration_name,
+    // state_attribute_list_declaration_start,
+    state_before_attribute_list_declaration_name,
     state_attribute_list_declaration_name,
     state_after_attribute_list_declaration_name,
-
     // ATTDEF_NAME
     state_before_attribute_definition_name,
     state_attribute_definition_name,
     state_after_attribute_definition_name,
-
     // ATTDEF_TYPE
     state_before_attribute_definition_value_type,
     state_attribute_definition_value_type_reserved,
     state_attribute_definition_value_type_enumerated,
     state_after_attribute_definition_value_type,
-
     // ATTDEF_DECLARATIOIN
     state_before_attribute_definition_default_decl,
     state_attribute_definition_default_decl,
