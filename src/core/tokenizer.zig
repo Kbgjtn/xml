@@ -211,7 +211,7 @@ pub const Attribute = struct {
 
 const State = enum {
     state_data,
-    state_character_reference,
+    state_reference,
     state_numeric_reference,
     state_hex_reference,
     state_decimal_reference,
