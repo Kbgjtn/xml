@@ -142,8 +142,17 @@ pub const Identifier = struct {
     }
 
     pub fn publicId(self: *const Identifier, src: []const u8) ?[]const u8 {
-        if (self.public_start == null or self.public_len == null) {
-            return null;
+        const start = self.public_start orelse return null;
+        const len = self.public_len orelse return null;
+        return src[start .. start + len];
+    }
+
+    pub fn print(self: *const Identifier, buffer: []const u8) void {
+        std.debug.print("Identifier\n", .{});
+        std.debug.print("--------------------\n", .{});
+        std.debug.print("system: \"{s}\"\n", .{self.systemId(buffer)});
+        if (self.publicId(buffer)) |public_id| {
+            std.debug.print("public: \"{s}\"\n", .{public_id});
         }
 
         return src[self.public_start.? .. self.public_start.? + self.public_len.?];
