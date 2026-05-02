@@ -848,75 +848,58 @@ pub const Tokenizer = struct {
                 }
             },
 
-            .state_attribute_value_single_quoted => {
-                const c = self.buffer[self.index];
+            .state_attribute_value_single_quoted => switch (self.buffer[self.index]) {
+                0 => {
+                    if (self.index == self.buffer.len) {
+                        @panic("unterminated!");
+                    }
 
-                switch (c) {
-                    0 => {
-                        if (self.index == self.buffer.len) {
-                            // token.tag = .character;
-                            // token.start = start_pos;
-                            // token.len = 1;
-                            //
-                            // self.index = start_pos + 1;
-                            // self.state = .state_data;
-                            // break :s;
-                            @panic("unterminated!");
-                        }
+                    // specs ::= "'" ([^<&"] | Reference)* "'"
+                    // for now \x00 is allowed
+                    attribute.value_len += 1;
+                    self.index += 1;
+                    continue :s .state_attribute_value_single_quoted;
+                },
 
-                        // its says
-                        // "'" ([^<&"] | Reference)* "'"
-                        attribute.value_len += 1;
-                        self.index += 1;
-                        continue :s .state_attribute_value_single_quoted;
-                    },
+                '\'' => {
+                    self.pushAttribute(attribute);
+                    attribute = .default;
 
-                    '\'' => {
-                        self.pushAttribute(attribute);
-                        attribute = .empty;
+                    self.index += 1;
+                    self.current_len = undefined;
+                    continue :s .state_after_attribute_value;
+                },
 
-                        self.index += 1;
-                        continue :s .state_after_attribute_value;
-                    },
+                '&' => {
+                    attribute.value_len += 1;
 
-                    '&' => {
-                        self.index += 1;
-                        self.state = .state_attribute_value_single_quoted;
-                        continue :s .state_character_reference;
-                    },
+                    self.index += 1;
+                    self.current_len = &attribute.value_len;
+                    self.state = .state_attribute_value_single_quoted;
+                    continue :s .state_reference;
+                },
 
-                    '<',
-                    // '"', // maybe?
-                    => {
-                        @panic("illegal character '<' or '\"' inside attribute value!");
-                    },
+                '<',
+                // '"', // maybe?
+                => {
+                    @panic("illegal character '<' or '\"' inside attribute value!");
+                },
 
-                    else => {
-                        attribute.value_len += 1;
-                        self.index += 1;
-                        continue :s .state_attribute_value_single_quoted;
-                    },
-                }
+                else => {
+                    attribute.value_len += 1;
+                    self.index += 1;
+                    continue :s .state_attribute_value_single_quoted;
+                },
             },
 
             .state_attribute_value_double_quoted => switch (self.buffer[self.index]) {
                 0 => {
                     if (self.index == self.buffer.len) {
-                        std.debug.print("eof found\n", .{});
-                        //
-                        // token.tag = .character;
-                        // token.start = start_pos;
-                        // token.len = 1;
-                        //
-                        // self.index = start_pos + 1;
-                        // self.state = .state_data;
-                        // break :s;
-                        //
                         @panic("unterminated!");
                     }
 
-                    // its says
-                    // '"' ([^<&"] | Reference)* '"'
+                    // specs ::= '"' ([^<&"] | Reference)* '"'
+                    // for now \x00 is allowed
                     attribute.value_len += 1;
                     self.index += 1;
                     continue :s .state_attribute_value_double_quoted;
@@ -924,16 +907,20 @@ pub const Tokenizer = struct {
 
                 '"' => {
                     self.pushAttribute(attribute);
-                    attribute = .empty;
+                    attribute = .default;
 
                     self.index += 1;
+                    self.current_len = undefined;
                     continue :s .state_after_attribute_value;
                 },
 
                 '&' => {
+                    attribute.value_len += 1;
+
                     self.index += 1;
+                    self.current_len = &attribute.value_len;
                     self.state = .state_attribute_value_double_quoted;
-                    continue :s .state_character_reference;
+                    continue :s .state_reference;
                 },
 
                 '<',
