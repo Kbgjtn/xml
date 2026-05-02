@@ -11,9 +11,15 @@ pub const Token = struct {
         .start = 0,
     };
 
-    pub fn init(start: u32, len: u16) Token {
+    pub const eof: Token = .{
+        .tag = .eof,
+        .len = 0,
+        .start = 0,
+    };
+
+    pub fn init(tag: Tag, start: u32, len: u16) Token {
         return .{
-            .tag = .character,
+            .tag = tag,
             .len = len,
             .start = start,
         };
