@@ -2820,23 +2820,6 @@ pub const Tokenizer = struct {
     }
 };
 
-test "isNameChar" {
-    // try std.testing.expect(Tokenizer.isChar('%'));
-    // try std.testing.expect(Tokenizer.isChar(';'));
-    // try std.testing.expect(Tokenizer.isChar('('));
-    // try std.testing.expect(Tokenizer.isChar(')'));
-    // try std.testing.expect(Tokenizer.isChar('|'));
-    // try std.testing.expect(Tokenizer.isChar('?'));
-    // try std.testing.expect(Tokenizer.isChar('*'));
-    // try std.testing.expect(Tokenizer.isChar('+'));
-}
-
-test "scan CDATA" {
-    const buffer = "<![CDATA[abcdefg]]>";
-    const cdata_len = try Tokenizer.scanCData(buffer[8..], 0);
-    std.debug.print("cdata: {}\n", .{cdata_len});
-}
-
 fn testTokenizer(source: [:0]const u8, expected_tags: []const Token.Tag) !void {
     // for (source, 0..) |c, i| {
     //     std.debug.print("{c};{}\n", .{ c, i });
