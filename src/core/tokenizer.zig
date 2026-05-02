@@ -65,7 +65,7 @@ pub const Token = struct {
     }
 };
 
-const Span = struct {
+pub const Span = struct {
     start: u32,
     len: u16,
     pub const empty: Span = .{ .start = 0, .len = 0 };
