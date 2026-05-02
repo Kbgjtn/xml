@@ -205,7 +205,7 @@ pub const Attribute = struct {
     }
 
     pub fn print(self: *const Attribute, source: []const u8) void {
-        std.debug.print("Attribute {s} = \"{s}\"\n", .{ self.name(source), self.value(source) });
+        std.debug.print("  {s} = \"{s}\"\n", .{ self.name(source), self.value(source) });
     }
 };
 
