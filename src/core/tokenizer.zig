@@ -975,18 +975,16 @@ pub const Tokenizer = struct {
                 }
 
                 if (self.buffer[self.index] == '>') {
-                    self.index += 1;
-
-                    self.state = .state_data;
                     token.tag = .start_tag_self_closing;
 
+                    self.index += 1;
+                    self.state = .state_data;
                     break :s;
                 }
 
                 // TODO
                 // Anything else
                 // Parse error. Reconsume the character in the before attribute name state.
-
                 @panic("not implemented");
             },
 
