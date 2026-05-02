@@ -1052,6 +1052,150 @@ pub const Tokenizer = struct {
                 @panic("TODO: not handled yet!");
             },
 
+            .state_after_entity_keyword => {
+                std.debug.print("{s}\t", .{"state_after_entity_keyword"});
+                self.debugByte();
+
+                // [70] EntityDecl  ::= GEDecl | PEDecl
+                // [71] GEDecl      ::= '<!ENTITY' S Name S EntityDef S?'>'
+                // [72] PEDecl      ::= '<!ENTITY'S'%' S Name S PEDef S?'>'
+                // [73] EntityDef   ::= EntityValue | (ExternalIDNDataDecl?)
+                // [74] PEDef       ::= EntityValue | ExternalID
+
+                const c = self.buffer[self.index];
+                switch (c) {
+                    ' ', '\t', '\r', '\n' => {
+                        self.index += 1;
+                        continue :s .state_after_entity_keyword;
+                    },
+
+                    '%' => {
+                        // Parameter Entity declaration (PEDecl)
+                    },
+
+                    else => {
+                        // check for General Entity declaration (GEDecl)
+                        if (isNameStartChar(c)) {
+                            token = .init(.entity_declaration, self.index, 1);
+
+                            self.index += 1;
+                            self.state = .state_entity_name;
+                            continue :s .state_entity_name;
+                        }
+
+                        @panic("not handled yet!");
+                    },
+                }
+            },
+
+            .state_entity_name => {
+                std.debug.print("{s}\t", .{"state_entity_name"});
+                self.debugByte();
+
+                const c = self.buffer[self.index];
+                switch (c) {
+                    ' ', '\t', '\r', '\n' => {
+                        self.index += 1;
+                        continue :s .state_after_entity_name;
+                    },
+
+                    else => {
+                        if (isNameChar(c)) {
+                            token.len += 1;
+                            self.index += 1;
+                            continue :s .state_entity_name;
+                        }
+
+                        @panic("not handled yet!");
+                    },
+                }
+            },
+
+            .state_after_entity_name => {
+                std.debug.print("{s}\t", .{"state_after_entity_name"});
+                self.debugByte();
+
+                const c = self.buffer[self.index];
+                switch (c) {
+                    ' ', '\t', '\r', '\n' => {
+                        self.index += 1;
+                        continue :s .state_after_entity_name;
+                    },
+
+                    '"' => {
+                        // The entity is **INTERNAL**.
+                        // which its value is a quoted string literal.
+                        // using `Span` to store the entity value.
+
+                        self.span = .init(self.index + 1, 0);
+
+                        self.index += 1;
+                        self.state = .state_entity_value_literal;
+                        continue :s .state_entity_value_literal;
+                    },
+
+                    else => {
+                        @panic("expected EntityDefinition for an Internal Entity!");
+                    },
+                }
+            },
+
+            .state_entity_value_literal => {
+                std.debug.print("{s}\t", .{"state_entity_value_literal"});
+                self.debugByte();
+
+                const c = self.buffer[self.index];
+                switch (c) {
+                    '%' => {
+                        self.index += 1;
+                        self.span.?.len += 1;
+                        self.current_len = &self.span.?.len;
+                        continue :s .state_parameter_entity_reference;
+                    },
+
+                    '&' => {
+                        self.index += 1;
+                        self.span.?.len += 1;
+                        self.current_len = &self.span.?.len;
+                        continue :s .state_reference;
+                    },
+
+                    '"' => {
+                        self.index += 1;
+                        continue :s .state_after_entity_value;
+                    },
+
+                    else => {
+                        self.span.?.len += 1;
+                        self.index += 1;
+                        continue :s .state_entity_value_literal;
+                    },
+                }
+            },
+
+            .state_after_entity_value => {
+                std.debug.print("{s}\t", .{"state_after_entity_value"});
+                self.debugByte();
+
+                const c = self.buffer[self.index];
+                switch (c) {
+                    ' ', '\t', '\r', '\n' => {
+                        self.index += 1;
+                        continue :s .state_after_entity_value;
+                    },
+
+                    '>' => {
+                        self.index += 1;
+                        self.state = .state_data;
+                        break :s;
+                    },
+
+                    else => {
+                        @panic("not handled yet!");
+                    },
+                }
+            },
+
             .state_comment_start => {
                 // std.debug.print("{s} | ", .{"state_comment_start"});
                 //self.debugByte();
