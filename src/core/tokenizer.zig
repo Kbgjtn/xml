@@ -189,7 +189,7 @@ pub const Attribute = struct {
     value_start: u32,
     value_len: u16,
 
-    pub const empty: Attribute = .{
+    pub const default: Attribute = .{
         .name_start = 0,
         .name_len = 0,
         .value_start = 0,
