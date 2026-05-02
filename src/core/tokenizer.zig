@@ -421,13 +421,15 @@ pub const Tokenizer = struct {
                     '%' => {
                         token.len += 1;
                         self.index += 1;
+                        self.current_len = &token.len;
                         continue :s .state_parameter_entity_reference;
                     },
 
                     '&' => {
                         token.len += 1;
                         self.index += 1;
-                        continue :s .state_character_reference;
+                        self.current_len = &token.len;
+                        continue :s .state_reference;
                     },
 
                     else => {
