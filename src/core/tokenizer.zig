@@ -3133,6 +3133,11 @@ test "element" {
     try testTokenizer("<a b='\x00' />", &[_]Token.Tag{.start_tag_self_closing});
     try testTokenizer("<a:b c='1' />", &[_]Token.Tag{.start_tag_self_closing});
     try testTokenizer("<a c='1 &amp; 2' />", &[_]Token.Tag{.start_tag_self_closing});
+    try testTokenizer("<a c='&#123;' />", &[_]Token.Tag{.start_tag_self_closing});
+    try testTokenizer("<a c='&#xa1a1a1;' />", &[_]Token.Tag{.start_tag_self_closing});
+    try testTokenizer("<a c=\"1 &quot; 2\" />", &[_]Token.Tag{.start_tag_self_closing});
+    try testTokenizer("<a c=\"&#321;\" />", &[_]Token.Tag{.start_tag_self_closing});
+    try testTokenizer("<a c=\"&#xb1b1b1;\" />", &[_]Token.Tag{.start_tag_self_closing});
     try testTokenizer("<a c='&__;' />", &[_]Token.Tag{
         .character,
         .character,
