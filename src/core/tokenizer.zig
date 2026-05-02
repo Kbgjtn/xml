@@ -147,8 +147,39 @@ pub const Identifier = struct {
         if (self.publicId(buffer)) |public_id| {
             std.debug.print("public: \"{s}\"\n", .{public_id});
         }
+        std.debug.print("internal subset: \"{s}\"\n", .{self.internalSubset(buffer)});
+    }
+};
 
-        return src[self.public_start.? .. self.public_start.? + self.public_len.?];
+pub const AttributeDef = struct {
+    name_start: u32,
+    name_len: u16,
+    type_start: u32,
+    type_len: u16,
+    default_decl_start: u32,
+    default_decl_len: u16,
+    value_start: ?u32,
+    value_len: ?u16,
+
+    pub const default: AttributeDef = .{
+        .name_start = 0,
+        .name_len = 0,
+        .type_start = 0,
+        .type_len = 0,
+        .default_decl_start = 0,
+        .default_decl_len = 0,
+        .value_start = null,
+        .value_len = null,
+    };
+
+    pub fn print(self: @This(), source: []const u8) void {
+        std.debug.print("name: \"{s}\"\n", .{source[self.name_start .. self.name_start + self.name_len]});
+        std.debug.print("type: \"{s}\"\n", .{source[self.type_start .. self.type_start + self.type_len]});
+        std.debug.print("default_decl: \"{s}\"\n", .{source[self.default_decl_start .. self.default_decl_start + self.default_decl_len]});
+
+        const value_len = self.value_len orelse return;
+        const value_start = self.value_start orelse return;
+        std.debug.print("value: \"{s}\"\n", .{source[value_start .. value_start + value_len]});
     }
 };
 
