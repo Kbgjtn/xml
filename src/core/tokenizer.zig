@@ -244,11 +244,17 @@ pub const Tokenizer = struct {
     /// buffer must outlive Tokenizer
     buffer: [:0]const u8,
 
+    // NOTE
+    // just to aware of, the inline buffer is
+    // not scallable in the long run.
+
     /// Tokenizer owns, caller borrowed a view of the key value spans
     /// will resets when the `next()` is called.
     attribute_elements: [16]Attribute,
     attribute_elements_count: usize,
 
+    /// Tokenizer owns, caller borrowed a view of the attribute definitions
+    /// will resets when the `next()` is called.
     attribute_defs: [16]AttributeDef,
     attribute_defs_count: usize,
 
