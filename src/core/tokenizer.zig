@@ -565,15 +565,10 @@ pub const Tokenizer = struct {
 
             .state_tag_open => {
                 const c = self.buffer[self.index];
-                //self.debugByte();
-
-                token.tag = .start_tag;
-                token.start = self.index;
-
                 if (isNameStartChar(c)) {
-                    token.len += 1;
-                    self.index += 1;
+                    token = .init(.start_tag, self.index, 1);
 
+                    self.index += 1;
                     self.state = .state_tag_name;
                     continue :s .state_tag_name;
                 }
@@ -587,7 +582,7 @@ pub const Tokenizer = struct {
 
                     '?' => {
                         // PI | XML Declaration | Text Declaration
-                        // they're share the same prefix "<?"
+                        // they are share the same prefix "<?"
                         self.index += 1;
                         self.state = .state_pi_target;
                         continue :s .state_pi_target;
@@ -599,9 +594,7 @@ pub const Tokenizer = struct {
                     },
 
                     else => {
-                        token.tag = .character;
-                        token.start = start_pos;
-                        token.len = 1;
+                        token = .init(.character, start_pos, 1);
 
                         self.state = .state_data;
                         self.index = start_pos + 1;
@@ -616,7 +609,6 @@ pub const Tokenizer = struct {
                 }
 
                 const c = self.buffer[self.index];
-                //self.debugByte();
                 if (isNameChar(c)) {
                     token.len += 1;
                     self.index += 1;
@@ -643,9 +635,7 @@ pub const Tokenizer = struct {
                     },
 
                     else => {
-                        token.tag = .character;
-                        token.start = start_pos;
-                        token.len = 1;
+                        token = .init(.character, start_pos, 1);
 
                         self.index = start_pos + 1;
                         self.state = .state_data;
@@ -797,10 +787,8 @@ pub const Tokenizer = struct {
                             @panic("found attribte name, has no value after it!");
                         }
 
-                        attribute = .empty;
-
+                        attribute = .default;
                         self.index += 1;
-                        // self.state = .state_self_closing_start_tag;
                         continue :s .state_self_closing_start_tag;
                     },
 
@@ -816,10 +804,10 @@ pub const Tokenizer = struct {
             },
 
             .state_before_attribute_value => {
-                const c = self.buffer[self.index];
-
                 // std.debug.print("{s} | ", .{"state_before_attribute_value"});
                 //self.debugByte();
+
+                const c = self.buffer[self.index];
                 switch (c) {
                     ' ', '\t', '\r', '\n' => { // Ignore the character.
                         self.index += 1;
@@ -829,6 +817,7 @@ pub const Tokenizer = struct {
                     '"' => {
                         attribute.value_start = self.index + 1;
                         self.index += 1;
+                        self.state = .state_attribute_value_double_quoted;
                         continue :s .state_attribute_value_double_quoted;
                     },
 
@@ -841,6 +830,7 @@ pub const Tokenizer = struct {
 
                     '>' => {
                         // idk
+                        @panic("not handled yet! the char '>' on state state_before_attribute_value");
                     },
 
                     // '<' forbidden inside attribute values
@@ -853,18 +843,6 @@ pub const Tokenizer = struct {
                     },
 
                     else => {
-                        // Anything else
-                        // unquoted value
-                        // <tag attr=value>
-                        // this is valid in HTML
-                        // BUT invalid in XML
-                        // token.tag = .character;
-                        // token.start = start_pos;
-                        // token.len = 1;
-                        //
-                        // self.index = start_pos + 1;
-                        // self.state = .state_data;
-                        // break :s;
                         @panic("unquoted attribute value not allowed! not implemented!");
                     },
                 }
