@@ -74,7 +74,14 @@ pub const Token = struct {
 pub const Span = struct {
     start: u32,
     len: u16,
-    pub const empty: Span = .{ .start = 0, .len = 0 };
+
+    /// Default empty `Span`.
+    /// Every field is initialized to zero.
+    pub const default: Span = .{ .start = 0, .len = 0 };
+
+    pub fn format(self: *const Span, writer: std.Io.Writer) std.Io.Writer.Error!void {
+        writer.print("{};{}", self.start, self.len);
+    }
 };
 
 pub const Identifier = struct {
