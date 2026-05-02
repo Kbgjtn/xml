@@ -402,14 +402,10 @@ pub const Tokenizer = struct {
         //   instaed Tokenizer internal storage
 
         s: switch (self.state) {
-            // NOTE latest
             .state_data => {
                 if (self.index >= self.buffer.len) {
                     if (token.len > 0) break :s;
-
-                    token.len = 0;
-                    token.tag = .eof;
-                    token.start = self.index;
+                    token = .eof;
                     break :s;
                 }
 
