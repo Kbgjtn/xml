@@ -989,15 +989,16 @@ pub const Tokenizer = struct {
             },
 
             .state_markup_declaration_open => {
-                //self.debugByte();
+                // TODO
+                // not handled elements:
+                // NOTATION
+                // CONDITIONAL SECTION
+
                 // If the next two characters are both U+002D HYPHEN-MINUS characters (-), consume those two characters, create a comment token whose data is the empty string, and switch to the comment start state.
-                if (self.index + 1 < self.buffer.len and
-                    std.mem.eql(u8, self.buffer[self.index .. self.index + 2], "--"))
-                {
-                    token.tag = .comment;
-                    token.start = self.index + 2;
-                    std.debug.print("it's a comment start dash\n", .{});
+                if (self.peekExpectEqualStrings("--")) {
+                    token = .init(.comment, self.index + 2, 0);
                     self.index += 2;
+                    self.state = .state_comment_start;
                     continue :s .state_comment_start;
                 }
 
@@ -1005,7 +1006,7 @@ pub const Tokenizer = struct {
                 if (self.index + 6 < self.buffer.len and
                     std.ascii.eqlIgnoreCase(
                         self.buffer[self.index .. self.index + 7],
-                        "doctype",
+                        "DOCTYPE",
                     ))
                 {
                     self.index += 7;
@@ -1013,39 +1014,36 @@ pub const Tokenizer = struct {
                     continue :s .state_doctype;
                 }
 
-                // Otherwise, if the insertion mode is "in foreign content"
-                // and the current node is not an element in the HTML namespace
-                // and the next seven characters are an case-sensitive match for
-                // the string "[CDATA[" (the five uppercase letters "CDATA" with
-                // a U+005B LEFT SQUARE BRACKET character before and after),
-                // then consume those characters and switch to the CDATA section state.
-                if (self.index + 6 < self.buffer.len and
-                    std.mem.eql(
-                        u8,
-                        self.buffer[self.index .. self.index + 7],
-                        "[CDATA[",
-                    ))
-                {
-                    token.tag = .cdata;
-                    token.start = self.index + 7;
+                if (self.peekExpectEqualStrings("[CDATA[")) {
+                    token = .init(.cdata, self.index + 7, 0);
 
                     self.index += 7;
                     self.state = .state_cdata_section;
                     continue :s .state_cdata_section;
                 }
 
-                if (self.index + 6 < self.buffer.len and
-                    std.mem.eql(
-                        u8,
-                        self.buffer[self.index .. self.index + 7],
-                        "ELEMENT",
-                    ))
-                {
+                if (self.peekExpectEqualStrings("ELEMENT")) {
                     token.tag = .element_declaration;
 
                     self.index += 7;
                     self.state = .state_element_type_declaration_start;
                     continue :s .state_element_type_declaration_start;
+                }
+
+                if (self.peekExpectEqualStrings("ENTITY")) {
+                    token.tag = .element_declaration;
+
+                    self.index += 6;
+                    self.state = .state_after_entity_keyword;
+                    continue :s .state_after_entity_keyword;
+                }
+
+                if (self.peekExpectEqualStrings("ATTLIST")) {
+                    token.tag = .attribute_list_declaration;
+
+                    self.index += 7;
+                    self.state = .state_before_attribute_list_declaration_name;
+                    continue :s .state_before_attribute_list_declaration_name;
                 }
 
                 // Otherwise, this is a parse error.
