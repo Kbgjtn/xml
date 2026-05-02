@@ -2821,9 +2821,6 @@ pub const Tokenizer = struct {
 };
 
 fn testTokenizer(source: [:0]const u8, expected_tags: []const Token.Tag) !void {
-    // for (source, 0..) |c, i| {
-    //     std.debug.print("{c};{}\n", .{ c, i });
-    // }
     std.debug.print("\ncase: \"{s}\"\n", .{source});
     var tokenizer = Tokenizer.init(source);
 
@@ -2833,13 +2830,16 @@ fn testTokenizer(source: [:0]const u8, expected_tags: []const Token.Tag) !void {
         defer {
             tokenizer.dump(&token);
 
-            const attrs = tokenizer.attributes();
-            for (attrs) |attr| {
-                attr.print(source);
+            if (token.tag == .pi) {
+                std.debug.print("data \"{s}\"\n", .{tokenizer.processInstruction().?});
             }
 
-            if (token.tag == .pi) {
-                std.debug.print("data \"{s}\"\n", .{tokenizer.process_instruction().?});
+            if (token.tag == .attribute_list_declaration) {
+                const attrs_def = tokenizer.attributeDefinitions();
+                for (attrs_def) |def| {
+                    std.debug.print("-----------------------\n", .{});
+                    def.print(source);
+                }
             }
         }
 
