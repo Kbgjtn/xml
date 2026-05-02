@@ -365,22 +365,30 @@ pub const Tokenizer = struct {
         var attribute_def: AttributeDef = .default;
         var mode: enum { read, internal_subset, span } = .read;
 
+        // TODO Delete THIS!
         defer {
-            if (token.tag == .doctype) {
-                if (self.identifier) |id| {
-                    std.debug.print("identifier: {any}\n", .{id});
-                    std.debug.print("identifier.system: \"{s}\"\n", .{self.buffer[id.system_start .. id.system_start + id.system_len]});
-                    std.debug.print("identifier.public: \"{s}\"\n", .{self.buffer[id.public_start.? .. id.public_start.? + id.public_len.?]});
-                    std.debug.print("identifier.internal_subset: \"{s}\"\n", .{self.buffer[id.internal_subset_start .. id.internal_subset_start + id.internal_subset_len]});
+            if (token.tag == .entity_declaration) {
+                std.debug.print("\nEntity Decl\n", .{});
+                std.debug.print("------------------\n", .{});
+                std.debug.print("name: \"{s}\"\n", .{token.value(self.buffer)});
+                if (self.span) |s| {
+                    std.debug.print("value (literal): \"{s}\"\n", .{s.value(self.buffer)});
+                    std.debug.print("span: {f}\n", .{s});
                 }
+            }
+
+            if (token.tag == .doctype) {
+                if (self.identifier) |id| id.print(self.buffer);
+
                 if (self.span) |s| {
                     std.debug.print("span: {any}\n", .{s});
                     std.debug.print("span.value: \"{s}\"\n", .{self.buffer[s.start .. s.start + s.len]});
                 }
             }
+
             if (token.tag == .element_declaration) {
                 if (self.span) |s| {
-                    std.debug.print("span: {any}\n", .{s});
+                    std.debug.print("span: {f}\n", .{s});
                     std.debug.print("span.value: \"{s}\"\n", .{self.buffer[s.start .. s.start + s.len]});
                 }
             }
