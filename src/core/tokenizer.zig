@@ -394,6 +394,13 @@ pub const Tokenizer = struct {
             }
         }
 
+        // TODO
+        // - still unclear about where and when is the ideals
+        //   to set identifier value in `state_doctype_*`.
+        //
+        // - implement client provided Sink for storage field values
+        //   instaed Tokenizer internal storage
+
         s: switch (self.state) {
             // NOTE latest
             .state_data => {
