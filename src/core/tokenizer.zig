@@ -413,6 +413,12 @@ pub const Tokenizer = struct {
                         continue :s .state_tag_open;
                     },
 
+                    '%' => {
+                        token.len += 1;
+                        self.index += 1;
+                        continue :s .state_parameter_entity_reference;
+                    },
+
                     '&' => {
                         token.len += 1;
                         self.index += 1;
