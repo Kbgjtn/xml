@@ -51,6 +51,25 @@ pub const Token = struct {
         unknown,
     };
 
+    pub const PredefinedGeneralEntities: std.StaticStringMap(void) =
+        .initComptime(&.{
+            .{"amp"},
+            .{"lt"},
+            .{"gt"},
+            .{"apos"},
+            .{"quot"},
+        });
+
+    /// Create a Token instance with every field set based on
+    /// the given parameters.
+    pub fn init(tag: Tag, start: u32, len: u16) Token {
+        return .{
+            .tag = tag,
+            .len = len,
+            .start = start,
+        };
+    }
+
     pub fn value(self: *const Token, src: []const u8) []const u8 {
         return src[self.start .. self.start + self.len];
     }
