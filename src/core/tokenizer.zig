@@ -84,7 +84,9 @@ pub const Identifier = struct {
     public_start: ?u32,
     public_len: ?u16,
 
-    pub const empty: Identifier = .{
+    /// Default empty `Identifier`.
+    /// Every field is initialized to zero.
+    pub const default: Identifier = .{
         .id_len = 0,
         .id_start = 0,
         .system_len = 0,
