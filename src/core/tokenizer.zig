@@ -322,6 +322,7 @@ pub const Tokenizer = struct {
 
     /// buffer must outlive Tokenizer
     buffer: [:0]const u8,
+    current_len: *u16,
 
     // NOTE
     // just to aware of, the inline buffer is
