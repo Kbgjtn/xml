@@ -90,6 +90,9 @@ pub const Token = struct {
     }
 };
 
+/// Represents a stored index and length of a value.
+/// Case when scanning `processing instruction` need to
+/// store the PIData somewhere.
 pub const Span = struct {
     start: u32,
     len: u16,
@@ -98,12 +101,16 @@ pub const Span = struct {
     /// Every field is initialized to zero.
     pub const default: Span = .{ .start = 0, .len = 0 };
 
+    pub fn init(start: u32, len: u16) Span {
+        return .{ .start = start, .len = len };
+    }
+
     pub fn value(self: *const Span, buffer: []const u8) []const u8 {
         return buffer[self.start .. self.start + self.len];
     }
 
-    pub fn format(self: *const Span, writer: std.Io.Writer) std.Io.Writer.Error!void {
-        writer.print("{};{}", self.start, self.len);
+    pub fn format(self: *const Span, writer: *std.Io.Writer) std.Io.Writer.Error!void {
+        try writer.print("{};{}", .{ self.start, self.len });
     }
 };
 
