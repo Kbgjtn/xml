@@ -346,12 +346,13 @@ pub const Tokenizer = struct {
             .index = 0,
             .span = null,
             .buffer = buffer,
+            .current_len = undefined,
             .identifier = null,
             .state = .state_data,
             .attribute_defs_count = 0,
             .attribute_elements_count = 0,
-            .attribute_elements = [_]Attribute{Attribute.empty} ** 16,
-            .attribute_defs = [_]AttributeDef{AttributeDef.empty} ** 16,
+            .attribute_elements = [_]Attribute{Attribute.default} ** 16,
+            .attribute_defs = [_]AttributeDef{AttributeDef.default} ** 16,
         };
     }
 
