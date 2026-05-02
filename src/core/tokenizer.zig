@@ -440,30 +440,27 @@ pub const Tokenizer = struct {
                 }
             },
 
-            .state_character_reference => switch (self.buffer[self.index]) {
-                '#' => {
-                    self.index += 1;
-                    continue :s .state_numeric_reference;
-                },
+            .state_reference => {
+                const c = self.buffer[self.index];
+                switch (c) {
+                    '#' => {
+                        self.current_len.* += 1;
+                        self.index += 1;
+                        continue :s .state_numeric_reference;
+                    },
 
-                'A'...'Z',
-                'a'...'z',
-                => {
-                    // token.tag = .entity_reference;
-                    // token.start = self.index;
-                    // self.state = .state_entity_reference;
-                    continue :s .state_entity_reference;
-                },
+                    else => {
+                        if (isNameStartChar(c)) {
+                            continue :s .state_entity_reference;
+                        }
 
-                else => {
-                    token.tag = .character;
-                    token.start = start_pos;
-                    token.len = 1;
-
-                    self.state = .state_data;
-                    self.index = start_pos + 1;
-                    break :s;
-                },
+                        // unknown syntax! fallback.
+                        token = .init(.character, start_pos, 1);
+                        self.state = .state_data;
+                        self.index = start_pos + 1;
+                        break :s;
+                    },
+                }
             },
 
             .state_numeric_reference => switch (self.buffer[self.index]) {
