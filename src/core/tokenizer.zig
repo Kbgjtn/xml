@@ -2598,12 +2598,89 @@ pub const Tokenizer = struct {
         return token;
     }
 
+    /// Returns a view of the attributes of the current token.
+    /// The returned slice becomes invalid after the next `next()` call.
+    pub fn attributes(self: *Tokenizer) []const Attribute {
+        return self.attribute_elements[0..self.attribute_elements_count];
+    }
+
+    pub fn doctypeIdentifier(self: *const Tokenizer) ?Identifier {
+        return self.identifier;
+    }
+
+    pub fn processInstruction(self: *Tokenizer) ?[]const u8 {
+        if (self.span) |v| {
+            return self.buffer[v.start .. v.start + v.len];
+        }
+        return null;
+    }
+
+    pub fn contentSpec(self: *Tokenizer) ?[]const u8 {
+        if (self.span) |span| {
+            return self.buffer[span.start .. span.start + span.len];
+        }
+        return null;
+    }
+
+    pub fn attributeDefinitions(self: *Tokenizer) []const AttributeDef {
+        if (self.attribute_defs_count > 0) {
+            return self.attribute_defs[0..self.attribute_defs_count];
+        }
+        return &.{};
+    }
+
+    pub fn dump(self: *Tokenizer, token: *const Token) void {
+        std.debug.print("{f} | [0x{x}] \"{s}\" | attrs_len={}\n", .{
+            token,
+            self.buffer[token.start .. token.start + token.len],
+            self.buffer[token.start .. token.start + token.len],
+            self.attribute_elements_count,
+        });
+
+        for (self.attributes()) |attr| {
+            attr.print(self.buffer);
+        }
+    }
+
+    pub fn debugByte(self: *Tokenizer) void {
+        // std.debug.print("'{c}' [0x{X}] | {t}\n", .{
+        //     self.buffer[self.index],
+        //     self.buffer[self.index],
+        //     self.state,
+        // });
+
+        std.debug.print("'{c}' [0x{X}]\n", .{
+            self.buffer[self.index],
+            self.buffer[self.index],
+            // self.state,
+        });
+    }
+
     fn pushAttribute(self: *Tokenizer, attr: Attribute) void {
         if (self.attribute_elements_count == self.attribute_elements.len) {
             @panic("BufferOverflow");
         }
 
-        return null;
+        for (self.attribute_elements) |v| {
+            if (std.mem.eql(
+                u8,
+                self.buffer[v.name_start .. v.name_start + v.name_len],
+                self.buffer[attr.name_start .. attr.name_start + attr.name_len],
+            )) {
+                return;
+            }
+        }
+
+        self.attribute_elements[self.attribute_elements_count] = attr;
+        self.attribute_elements_count += 1;
+    }
+
+    fn reset_internal_properties(self: *Tokenizer) void {
+        self.span = null;
+        self.current_len = undefined;
+        self.identifier = null;
+        self.attribute_defs_count = 0;
+        self.attribute_elements_count = 0;
     }
 
     /// 2.2 Characters
