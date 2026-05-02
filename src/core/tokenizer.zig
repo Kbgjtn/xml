@@ -465,29 +465,26 @@ pub const Tokenizer = struct {
 
             .state_numeric_reference => switch (self.buffer[self.index]) {
                 'x', 'X' => {
-                    token.len += 1;
+                    self.current_len.* += 1;
                     self.index += 1;
-                    // self.state = .state_hex_reference;
                     continue :s .state_hex_reference;
                 },
 
                 '0'...'9' => {
-                    // self.state = .state_decimal_reference;
+                    self.current_len.* += 1;
+                    self.index += 1;
                     continue :s .state_decimal_reference;
                 },
 
                 ';' => {
-                    token.len += 1;
-                    // self.index += 1;
-                    // self.state = .state_data;
+                    // token.len += 1;
+                    self.current_len.* += 1;
+                    self.index += 1;
                     continue :s self.state;
                 },
 
                 else => {
-                    token.tag = .character;
-                    token.start = start_pos;
-                    token.len = 1;
-
+                    token = .init(.character, start_pos, 1);
                     self.state = .state_data;
                     self.index = start_pos + 1;
                     break :s;
