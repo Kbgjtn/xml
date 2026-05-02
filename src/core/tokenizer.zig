@@ -98,6 +98,10 @@ pub const Span = struct {
     /// Every field is initialized to zero.
     pub const default: Span = .{ .start = 0, .len = 0 };
 
+    pub fn value(self: *const Span, buffer: []const u8) []const u8 {
+        return buffer[self.start .. self.start + self.len];
+    }
+
     pub fn format(self: *const Span, writer: std.Io.Writer) std.Io.Writer.Error!void {
         writer.print("{};{}", self.start, self.len);
     }
