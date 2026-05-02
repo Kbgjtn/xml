@@ -2570,6 +2570,15 @@ pub const Tokenizer = struct {
         return (!std.unicode.utf8ValidateSlice(input));
     }
 
+    fn peekExpectEqualStrings(self: *Tokenizer, comptime v: []const u8) bool {
+        return self.index + v.len - 1 < self.buffer.len and
+            std.mem.eql(
+                u8,
+                self.buffer[self.index .. self.index + v.len],
+                v,
+            );
+    }
+
     /// Scan a CDATA section starting at `start` (right after `!<[CDATA[`).
     /// Returns the byte slice of the CDATA content and the index right
     /// after closing sequence `]]>`.
