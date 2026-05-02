@@ -71,7 +71,7 @@ const Span = struct {
     pub const empty: Span = .{ .start = 0, .len = 0 };
 };
 
-const Identifier = struct {
+pub const Identifier = struct {
     id_start: u32,
     id_len: u16,
 
