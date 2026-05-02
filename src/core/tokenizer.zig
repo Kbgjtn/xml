@@ -5,6 +5,8 @@ pub const Token = struct {
     tag: Tag,
     len: u16,
 
+    /// Default empty `Span`.
+    /// Every field is initialized to zero.
     pub const default: Token = .{
         .tag = .character,
         .len = 0,
@@ -17,23 +19,6 @@ pub const Token = struct {
         .start = 0,
     };
 
-    pub fn init(tag: Tag, start: u32, len: u16) Token {
-        return .{
-            .tag = tag,
-            .len = len,
-            .start = start,
-        };
-    }
-
-    pub const PredefinedGeneralEntities: std.StaticStringMap(void) =
-        .initComptime(&.{
-            .{"amp"},
-            .{"lt"},
-            .{"gt"},
-            .{"apos"},
-            .{"quot"},
-        });
-
     pub const Tag = enum {
         character,
         invalid,
@@ -44,6 +29,7 @@ pub const Token = struct {
         cdata,
         element_declaration,
         attribute_list_declaration,
+        entity_declaration,
         pi,
         doctype,
         xml_declaration,
