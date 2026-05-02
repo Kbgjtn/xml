@@ -2865,6 +2865,9 @@ test "character" {
     try testTokenizer("&#x41;", &[_]Token.Tag{.character});
     try testTokenizer("&amp;", &[_]Token.Tag{.character});
 
+    try testTokenizer("%abc;", &[_]Token.Tag{.character});
+    try testTokenizer("%abc", &[_]Token.Tag{ .character, .character });
+
     try testTokenizer("abc", &[_]Token.Tag{.character});
 }
 
