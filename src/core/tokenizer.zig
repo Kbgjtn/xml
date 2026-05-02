@@ -108,7 +108,7 @@ pub const Identifier = struct {
     system_len: u16,
 
     internal_subset_start: u32,
-    internal_subset_len: u32,
+    internal_subset_len: u16,
 
     public_start: ?u32,
     public_len: ?u16,
