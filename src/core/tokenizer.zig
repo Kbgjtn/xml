@@ -3032,7 +3032,6 @@ test "markup declarations" {
     try testTokenizer("<!ELEMENT p (#PCDATA | %font; | %phrase; | %special; | %form;)* >", &[_]Token.Tag{.element_declaration});
     try testTokenizer("<!ELEMENT b (#PCDATA)>", &[_]Token.Tag{.element_declaration});
     try testTokenizer("<!ELEMENT topichead    %topichead.content;>", &[_]Token.Tag{.element_declaration});
-
     try testTokenizer(
         \\<!ELEMENT temperatures (variable,
         \\                        filename,
@@ -3062,6 +3061,7 @@ test "markup declarations" {
     // <!ATTLIST payment type (check|cash) "cash">
     try testTokenizer("<!ATTLIST payment type (check|cash) \"cash\">", &[_]Token.Tag{.attribute_list_declaration});
 
+    // [ MIXED ]
     try testTokenizer(
         \\<!ATTLIST img
         \\          src    CDATA      #REQUIRED
@@ -3070,6 +3070,47 @@ test "markup declarations" {
         \\          print  (yes | no) "yes"
         \\>
     , &[_]Token.Tag{.attribute_list_declaration});
+
+    // PERefs (%name;) are only allowed in the DTD grammar itself, not inside attribute values. They can expand into valid attribute type definitions or enumerations, but they don’t appear inside the quoted default value.
+    // General entity references (&name;) are allowed inside attribute default values, but only if they expand to text that meets the syntactic constraints of the attribute type.
+    // Constraint [WFC: No External Entity References] means you cannot use external entities in attribute defaults — only internal ones declared in the same DTD.
+    // <!ENTITY local "defaultVal">
+    // <!ATTLIST img mode CDATA "&local;">
+
+    // PERef expanding to valid grammar
+    // `%colors;` expands to (red|green|blue), which is a valid enumerated type.
+    // <!ENTITY % colors "(red|green|blue)">
+    // <!ATTLIST shape fill %colors; "red">
+    // <!ENTITY % colors "(red|green|blue)">
+    // <!ATTLIST shape fill %colors; "red">
+
+    // General entity reference in default value (internal entity)
+    // `&local;` expands to "defaultVal". Allowed it's an internal entity.
+    // <!ENTITY local "defaultVal">
+    // <!ATTLIST img mode CDATA "&local;">
+
+    // Character references in default value
+    // "&#x41;" expands to "A". Allowed.
+    // <!ATTLIST note priority CDATA "&#x41;">
+
+    // [INTERNAL]
+    // <!ENTITY Pub-Status "This is a pre-release of the specification.">
+    try testTokenizer("<!ENTITY abc \"def\">", &[_]Token.Tag{.entity_declaration});
+    try testTokenizer("<!ENTITY abc \"def %ghi;\">", &[_]Token.Tag{.entity_declaration});
+    try testTokenizer("<!ENTITY abc \"&abc; %def;\">", &[_]Token.Tag{.entity_declaration});
+    try testTokenizer("<!ENTITY color \"&#xFFFFFF;\">", &[_]Token.Tag{.entity_declaration});
+    try testTokenizer("<!ENTITY color \"&#9999;\">", &[_]Token.Tag{.entity_declaration});
+
+    // [EXTERNAL]
+    // <!ENTITY open-hatch
+    //          SYSTEM "http://www.textuality.com/boilerplate/OpenHatch.xml">
+    // <!ENTITY open-hatch
+    //          PUBLIC "-//Textuality//TEXT Standard open-hatch boilerplate//EN"
+    //          "http://www.textuality.com/boilerplate/OpenHatch.xml">
+    // <!ENTITY hatch-pic
+    //          SYSTEM "../grafix/OpenHatch.gif"
+    //          NDATA gif >
+
 }
 
 test "element" {
