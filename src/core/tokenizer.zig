@@ -230,7 +230,18 @@ const State = enum {
     state_attribute_value_single_quoted,
     state_after_attribute_value,
 
+    /// A markup declaration is an element type declaration,
+    /// an attribute-list declaration, an entity declaration,
+    /// or a notation declaration.]
     state_markup_declaration_open,
+
+    state_after_entity_keyword,
+    state_entity_name,
+    state_after_entity_name,
+
+    state_entity_value_literal,
+    state_after_entity_value,
+
     state_comment_start,
     state_comment_start_dash,
     state_comment,
