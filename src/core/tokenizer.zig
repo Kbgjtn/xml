@@ -348,6 +348,7 @@ pub const Tokenizer = struct {
 
     span: ?Span,
     identifier: ?Identifier,
+    external_id: ?ExternalIdentifier,
 
     pub fn init(buffer: [:0]const u8) Tokenizer {
         return .{
@@ -356,6 +357,7 @@ pub const Tokenizer = struct {
             .buffer = buffer,
             .current_len = undefined,
             .identifier = null,
+            .external_id = null,
             .state = .state_data,
             .attribute_defs_count = 0,
             .attribute_elements_count = 0,
