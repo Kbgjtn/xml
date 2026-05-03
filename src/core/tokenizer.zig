@@ -239,9 +239,15 @@ const State = enum {
 
     state_after_entity_keyword,
     state_entity_name,
-    state_after_entity_name,
-
-    state_entity_value_literal,
+    state_before_entity_def,
+    state_external_id_keyword,
+    state_after_system_keyword,
+    state_after_public_keyword,
+    state_system_literal_double_quoted,
+    state_system_literal_single_quoted,
+    state_after_external_id,
+    state_entity_value_literal_double_quoted,
+    state_entity_value_literal_single_quoted,
     state_after_entity_value,
 
     state_comment_start,
