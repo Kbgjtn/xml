@@ -100,28 +100,30 @@ pub const Span = struct {
     }
 };
 
-pub const Identifier = struct {
-    id_start: u32,
-    id_len: u16,
-
+pub const ExternalIdentifier = struct {
     system_start: u32,
     system_len: u16,
-
-    internal_subset_start: u32,
-    internal_subset_len: u16,
 
     public_start: ?u32,
     public_len: ?u16,
 
+    pub const default: ExternalIdentifier = .{
+        .system_len = 0,
+        .system_start = 0,
+        .public_len = null,
+        .public_start = null,
+    };
+};
+
+pub const Identifier = struct {
+    external_id: ExternalIdentifier,
+    internal_subset_start: u32,
+    internal_subset_len: u16,
+
     /// Default empty `Identifier`.
     /// Every field is initialized to zero.
     pub const default: Identifier = .{
-        .id_len = 0,
-        .id_start = 0,
-        .system_len = 0,
-        .system_start = 0,
-        .public_len = 0,
-        .public_start = 0,
+        .external_id = .default,
         .internal_subset_len = 0,
         .internal_subset_start = 0,
     };
@@ -131,12 +133,12 @@ pub const Identifier = struct {
     }
 
     pub fn systemId(self: *const Identifier, src: []const u8) []const u8 {
-        return src[self.system_start .. self.system_start + self.system_len];
+        return src[self.external_id.system_start .. self.external_id.system_start + self.external_id.system_len];
     }
 
     pub fn publicId(self: *const Identifier, src: []const u8) ?[]const u8 {
-        const start = self.public_start orelse return null;
-        const len = self.public_len orelse return null;
+        const start = self.external_id.public_start orelse return null;
+        const len = self.external_id.public_len orelse return null;
         return src[start .. start + len];
     }
 
