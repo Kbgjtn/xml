@@ -242,6 +242,9 @@ const State = enum {
     /// or a notation declaration.]
     state_markup_declaration_open,
 
+    state_after_notation_keyword,
+    state_after_notation_name,
+
     state_after_entity_keyword,
     state_entity_name,
     state_before_entity_def,
