@@ -220,6 +220,11 @@ const State = enum {
     state_entity_reference,
     state_parameter_entity_reference,
 
+    state_name,
+
+    state_string_literal_double_quoted,
+    state_string_literal_single_quoted,
+
     state_tag_open,
     state_end_tag_open,
     state_tag_name,
